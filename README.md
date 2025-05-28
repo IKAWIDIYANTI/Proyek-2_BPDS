@@ -9,11 +9,10 @@ Tujuan utama dari inisiatif ini adalah memungkinkan intervensi dini yang tepat, 
 
 # Problem Statement
 
-1. Faktor apa yang paling memengaruhi risiko mahasiswa dropout?
-2. Apakah status ekonomi (debitor, keterlambatan pembayaran) berpengaruh signifikan terhadap keputusan dropout?
-3. Bagaimana hubungan antara performa akademik di semester pertama (mata kuliah disetujui/nilai) dengan status mahasiswa?
-4. Apakah latar belakang pendidikan orang tua memengaruhi keberhasilan akademik mahasiswa?
-5. Bisakah kita memprediksi mahasiswa berisiko dropout sejak semester pertama menggunakan model machine learning?
+1. Tingginya tingkat dropout mahasiswa mencapai 30% yang menyebabkan kerugian finansial dan reputasi institusi
+2. Ketidakmampuan mengidentifikasi mahasiswa berisiko sejak dini menyebabkan intervensi terlambat
+3. Kurangnya pemahaman faktor dominan penyebab dropout menyulitkan pengambilan kebijakan
+4. Adanya indikasi ketimpangan sosial ekonomi mempengaruhi kelulusan mahasiswa
 
 # Tujuan (Goals)
 
@@ -43,22 +42,33 @@ Proyek ini akan mencakup tahapan-tahapan berikut untuk mencapai tujuan bisnis ya
 
 # Persiapan
 
-# Sumber Data:
+Untuk menjalankan proyek ini dan mereplikasi hasilnya, ikuti langkah-langkah di bawah ini:
 
-Dataset yang digunakan dalam proyek ini berasal dari repositori GitHub Dicoding Academy, yaitu:
+# Sumber Data
+
+Dataset yang digunakan dalam proyek ini berasal dari repositori GitHub Dicoding Academy. Dataset ini berisi 37 fitur dan 1 variabel target (Status: Dropout/Graduate), mencakup informasi demografis, latar belakang akademik, dan performa akademik mahasiswa selama dua semester pertama.
+
+# Link Sumber Data:
+
+
 
 https://github.com/dicodingacademy/dicoding_dataset/blob/main/students_performance/README.md
 
 
-Dataset ini berisi 37 fitur dan 1 variabel target (Status:Dropout/Graduate), mencakup informasi demografis, latar belakang akademik, dan performa akademik mahasiswa selama dua semester pertama.
 
 # Setup Environment:
 
-1. Untuk memastikan semua dependensi proyek terinstal,dengan membuat file requirements.txt
-   dengan menjalankan perintah berikut di lingkungan pengembangan: '!pip freeze > requirements.txt'
-   Lingkungan pengembangan proyek ini tidak menggunakan virtual environment yang dideploy secara khusus.
-   Semua pustaka Python yang diperlukan akan diinstal langsung di lingkungan tempat kode dijalankan (misalnya, Google Colab ).
+Karena proyek ini dikembangkan di Google Colab,bisa langsung menjalankan perintah-perintah berikut di notebook Colab:
 
+1. Membuat requirements.txt
+
+- !pip freeze > requirements.txt
+
+2. Menginstal dependensi dari requirements.txt:
+
+- !pip install -r requirements.txt
+
+  
 # Business Dashboard
 
 Dashboard ini dirancang untuk memberikan insight cepat dan mendukung pengambilan keputusan strategis bagi manajemen perusahaan edutech dan institusi pendidikan dengan berfokus pada faktor-faktor yang memengaruhi risiko dropout.
