@@ -95,7 +95,12 @@ Langkah-langkah untuk menjalankan prototipe sistem machine learning:
 
 # Link untuk mengakses prototipe:
 
-Prototipe ini dirancang untuk dijalankan secara lokal atau dapat di-deploy ke Streamlit Community Cloud. Karena tautan deployment spesifik belum tersedia, cara paling langsung untuk menjalankan prototipe adalah dengan mengikuti langkah-langkah di atas secara lokal.
+
+
+https://proyek-2bpds-ddkkvinaibnbrdxdq5gyv7.streamlit.app/
+
+
+
 
 # Conclusion
 
