@@ -93,7 +93,7 @@ Langkah-langkah untuk menjalankan prototipe sistem machine learning:
 4. Jalankan Aplikasi Streamlit: Buka command prompt atau terminal pada komputer Anda, navigasikan ke direktori tempat Anda menyimpan file app.py, lalu jalankan perintah berikut: 'streamlit run app.py'
 5. Akses Prototipe: Setelah menjalankan perintah di atas, Streamlit akan secara otomatis membuka browser web default dan menampilkan antarmuka prototipe pada alamat lokal (biasanya http://localhost:8501). Di sana, dapat memasukkan fitur-fitur mahasiswa dan mendapatkan prediksi risiko dropout.
 
-# Link untuk mengakses prototipe:
+# Link untuk mengakses streamlit cloud:
 
 
 
