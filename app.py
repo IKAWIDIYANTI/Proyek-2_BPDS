@@ -33,51 +33,36 @@ def train_and_save_model(df_path='data.csv', model_filename='xgboost_model.pkl',
     df = None
 
     try:
-
+        # Mencoba memuat dari direktori saat ini (ini yang akan berhasil di Streamlit Cloud)
         df = pd.read_csv(df_path, sep=';')
-        st.success(f"File '{df_path}' berhasil dimuat dari direktori saat ini.")
+        st.success(f"File '{df_path}' berhasil dimuat.")
     except FileNotFoundError:
-        st.warning(f"File '{df_path}' tidak ditemukan di direktori saat ini. Mencoba memuat dari '/content/'.")
-        try:
-
-            df = pd.read_csv('/content/' + df_path, sep=';')
-            st.success(f"File '{df_path}' berhasil dimuat dari '/content/'.")
-        except FileNotFoundError:
-            st.error(f"File '{df_path}' tidak ditemukan di '/content/' maupun direktori saat ini. Pastikan Anda telah mengunggah data.csv.")
-            return False
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat memuat file '{df_path}' dari '/content/': {e}. Pastikan delimiter CSV Anda benar.")
-            return False
+        st.error(f"File '{df_path}' tidak ditemukan. Pastikan Anda telah mengunggah data.csv ke repositori Anda.")
+        return False
     except Exception as e:
-        st.error(f"Terjadi kesalahan saat memuat file '{df_path}' dari direktori saat ini: {e}. Pastikan delimiter CSV Anda benar.")
+        st.error(f"Terjadi kesalahan saat memuat file '{df_path}': {e}. Pastikan delimiter CSV Anda benar.")
         return False
 
     if df is None:
         return False
 
-
     df.columns = df.columns.str.strip()
-
 
     if 'status' in df.columns and 'Status' not in df.columns:
         df.rename(columns={'status': 'Status'}, inplace=True)
     elif 'STATUS' in df.columns and 'Status' not in df.columns:
         df.rename(columns={'STATUS': 'Status'}, inplace=True)
 
-
     if 'Status' not in df.columns:
-        st.error("Kolom 'Status' (atau variasinya) tidak ditemukan dalam dataset setelah mencoba berbagai kapitalisasi. Harap periksa nama kolom di file CSV Anda secara manual.")
+        st.error("Kolom 'Status' (atau variasinya) tidak ditemukan dalam dataset. Harap periksa nama kolom di file CSV Anda secara manual.")
         st.write("Nama kolom yang ditemukan setelah pembersihan:", df.columns.tolist())
         return False
 
-
     df['target'] = df['Status'].apply(lambda x: 1 if x == 'Dropout' else 0)
-
 
     second_sem_cols = ['Curricular_units_2nd_sem_credited', 'Curricular_units_2nd_sem_enrolled',
                        'Curricular_units_2nd_sem_evaluations', 'Curricular_units_2nd_sem_approved',
                        'Curricular_units_2nd_sem_grade', 'Curricular_units_2nd_sem_without_evaluations']
-
 
     df = df.drop(columns=second_sem_cols + ['Status'], errors='ignore')
 
@@ -101,13 +86,11 @@ def train_and_save_model(df_path='data.csv', model_filename='xgboost_model.pkl',
         else:
             st.warning(f"Kolom high-cardinality '{col}' tidak ditemukan di DataFrame. Mungkin sudah dihapus atau tidak ada.")
 
-
     if 'Marital_status' in X_train.columns:
-        X_train = pd.get_dummies(X_train, columns=['Marital_status'], prefix='Marital_status', drop_first=False) # drop_first=False agar tidak kehilangan 1 kolom
+        X_train = pd.get_dummies(X_train, columns=['Marital_status'], prefix='Marital_status', drop_first=False)
         X_test = pd.get_dummies(X_test, columns=['Marital_status'], prefix='Marital_status', drop_first=False)
     else:
         st.warning("Kolom 'Marital_status' tidak ditemukan. One-hot encoding dilewati.")
-
 
     missing_cols_in_test = set(X_train.columns) - set(X_test.columns)
     for col in missing_cols_in_test:
@@ -122,7 +105,6 @@ def train_and_save_model(df_path='data.csv', model_filename='xgboost_model.pkl',
                       'Curricular_units_1st_sem_grade', 'Curricular_units_1st_sem_without_evaluations',
                       'Unemployment_rate', 'Inflation_rate', 'GDP']
 
-
     numerical_cols = [col for col in numerical_cols if col in X_train.columns]
 
     scaler = StandardScaler()
@@ -132,11 +114,9 @@ def train_and_save_model(df_path='data.csv', model_filename='xgboost_model.pkl',
     smote = SMOTE(random_state=42)
     X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
 
-
     xgb_model = XGBClassifier(scale_pos_weight=(len(y_train_res) - sum(y_train_res)) / sum(y_train_res),
                               random_state=42, eval_metric='logloss')
     xgb_model.fit(X_train_res, y_train_res)
-
 
     joblib.dump(xgb_model, model_filename)
     joblib.dump(scaler, scaler_filename)
@@ -173,18 +153,14 @@ def preprocess_input(input_df, scaler, high_card_freq_maps, model_features):
 
     for col in high_cardinality:
         if col in processed_df.columns:
-
+            # Pastikan kunci ada di high_card_freq_maps sebelum mengakses
             processed_df[col + '_freq'] = processed_df[col].map(high_card_freq_maps.get(col, {})).fillna(0)
             processed_df = processed_df.drop(col, axis=1)
 
-
     if 'Marital_status' in processed_df.columns:
-
-        processed_df = pd.get_dummies(processed_df, columns=['Marital_status'], prefix='Marital_status', drop_first=False) # drop_first=False konsisten dengan pelatihan
-
+        processed_df = pd.get_dummies(processed_df, columns=['Marital_status'], prefix='Marital_status', drop_first=False)
 
     final_df = pd.DataFrame(0, index=[0], columns=model_features)
-
 
     for col in final_df.columns:
         if col in processed_df.columns:
@@ -195,7 +171,6 @@ def preprocess_input(input_df, scaler, high_card_freq_maps, model_features):
                       'Curricular_units_1st_sem_evaluations', 'Curricular_units_1st_sem_approved',
                       'Curricular_units_1st_sem_grade', 'Curricular_units_1st_sem_without_evaluations',
                       'Unemployment_rate', 'Inflation_rate', 'GDP']
-
 
     numerical_cols_to_scale = [col for col in numerical_cols if col in final_df.columns]
 
@@ -220,16 +195,20 @@ Tujuannya adalah untuk mengidentifikasi mahasiswa berisiko tinggi sejak dini dan
 """)
 
 
+# Pastikan model dilatih hanya jika belum ada
 if not os.path.exists('xgboost_model.pkl'):
-    st.warning("Model belum terlatih. Melatih model sekarang. Ini hanya akan dilakukan sekali.")
+    st.warning("Model belum terlatih atau file 'xgboost_model.pkl' tidak ditemukan. Melatih model sekarang. Proses ini hanya akan dilakukan sekali.")
     train_success = train_and_save_model()
     if not train_success:
+        st.error("Pelatihan model gagal. Pastikan file 'data.csv' tersedia dan formatnya benar.")
         st.stop()
+else:
+    st.info("Model sudah terlatih. Memuat model dari file yang tersimpan.")
 
 model, scaler, high_card_freq_maps, model_features = load_prediction_assets()
 
 if model is None:
-    st.error("Gagal memuat model. Aplikasi tidak dapat berfungsi.")
+    st.error("Gagal memuat model. Aplikasi tidak dapat berfungsi. Pastikan pelatihan model berhasil sebelumnya.")
     st.stop()
 
 
@@ -286,7 +265,6 @@ occupation_map = {
     34: "Cleaner", 35: "Driver", 36: "Security Guard", 37: "Retired", 38: "Homemaker",
     39: "Self-employed"
 }
-
 
 
 marital_status = st.sidebar.selectbox("Status Pernikahan", options=list(marital_status_map.keys()), format_func=lambda x: marital_status_map[x])
@@ -386,28 +364,18 @@ Bagian ini menampilkan hasil analisis dari dataset asli untuk menjawab pertanyaa
 def run_analysis(df_path='data.csv'):
     df_analysis = None
     try:
-
+        # Mencoba memuat dari direktori saat ini (ini yang akan berhasil di Streamlit Cloud)
         df_analysis = pd.read_csv(df_path, sep=';')
         st.success(f"File '{df_path}' berhasil dimuat untuk analisis.")
     except FileNotFoundError:
-        st.warning(f"File '{df_path}' tidak ditemukan di direktori saat ini. Mencoba memuat dari '/content/'.")
-        try:
-
-            df_analysis = pd.read_csv('/content/' + df_path, sep=';')
-            st.success(f"File '{df_path}' berhasil dimuat dari '/content/' untuk analisis.")
-        except FileNotFoundError:
-            st.error(f"File '{df_path}' tidak ditemukan di '/content/' maupun direktori saat ini. Analisis tidak dapat dilakukan.")
-            return
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat memuat file '{df_path}' untuk analisis: {e}. Pastikan delimiter CSV Anda benar.")
-            return
+        st.error(f"File '{df_path}' tidak ditemukan untuk analisis. Pastikan Anda telah mengunggah data.csv ke repositori Anda.")
+        return
     except Exception as e:
-        st.error(f"Terjadi kesalahan saat memuat file '{df_path}' dari direktori saat ini untuk analisis: {e}. Pastikan delimiter CSV Anda benar.")
+        st.error(f"Terjadi kesalahan saat memuat file '{df_path}' untuk analisis: {e}. Pastikan delimiter CSV Anda benar.")
         return
 
     if df_analysis is None:
         return
-
 
     df_analysis.columns = df_analysis.columns.str.strip()
     if 'status' in df_analysis.columns and 'Status' not in df_analysis.columns:
@@ -417,12 +385,10 @@ def run_analysis(df_path='data.csv'):
 
     if 'Status' not in df_analysis.columns:
         st.error("Kolom 'Status' (atau variasinya) tidak ditemukan dalam dataset untuk analisis. Harap periksa nama kolom di file CSV Anda.")
-        st.write("Nama kolom yang ditemukan setelah pembersihan (untuk analisis):", df_analysis.columns.tolist()) # Untuk debugging
+        st.write("Nama kolom yang ditemukan setelah pembersihan (untuk analisis):", df_analysis.columns.tolist())
         return
 
-
     df_analysis['target'] = df_analysis['Status'].apply(lambda x: 1 if x == 'Dropout' else 0)
-
 
     st.subheader("1. Pengaruh Status Ekonomi terhadap Risiko Dropout")
 
@@ -443,7 +409,6 @@ def run_analysis(df_path='data.csv'):
         st.dataframe(contingency_table_tuition)
     else:
         st.info("Keterlambatan pembayaran SPP tidak memiliki pengaruh signifikan terhadap keputusan *dropout*.")
-
 
     st.subheader("2. Hubungan Performa Akademik Semester Pertama dengan Status Mahasiswa")
     mean_grade_dropout = df_analysis[df_analysis['target']==1]['Curricular_units_1st_sem_grade'].mean()
